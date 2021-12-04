@@ -122,14 +122,15 @@ export const DemoScreen: FC<StackScreenProps<NavigatorParamList, "demo">> = obse
           preview: "More control with display()",
           important: true,
           image: {
-            uri: "https://avatars2.githubusercontent.com/u/3902527?s=200&u=a0d16b13ed719f35d95ca0f4440f5d07c32c349a&v=4",
+            uri:
+              "https://avatars2.githubusercontent.com/u/3902527?s=200&u=a0d16b13ed719f35d95ca0f4440f5d07c32c349a&v=4",
           },
         })
         // make an API call for the demo
         // Don't do API like this, use store's API
         const demo = new Api()
         demo.setup()
-        demo.getUser("1")
+        demo.getQuestions()
         // Let's do some async storage stuff
         await save("Cool Name", "Boaty McBoatface")
       },

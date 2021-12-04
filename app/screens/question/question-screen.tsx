@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { FlatList, TextStyle, View, ViewStyle } from "react-native"
-import { Screen, Text } from "../../components"
+import { Alert, FlatList, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
+import { Button, Screen, Text } from "../../components"
+import RadioButtons from "react-native-radio-buttons"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
@@ -43,6 +44,12 @@ const ANSWER_WRAPPER: ViewStyle = {
   paddingVertical: spacing.smaller,
 }
 
+const CHECK_ANSWER: ViewStyle = {
+  paddingVertical: spacing.smaller,
+  backgroundColor: color.palette.angry,
+  marginTop: spacing.smaller,
+}
+
 export const QuestionScreen = observer(function QuestionScreen() {
   // Are we refreshing the data
   const [refreshing, setRefreshing] = useState(false)
@@ -61,20 +68,39 @@ export const QuestionScreen = observer(function QuestionScreen() {
     setRefreshing(false)
   }
 
+  const onPressAnswer = (question: Question, guess: string) => {
+    question.setGuess(guess)
+  }
+
+  const checkAnswer = (question: Question) => {
+    if (question.isCorrect) {
+      Alert.alert("That is correct!")
+    } else {
+      Alert.alert(`Wrong! The correct answer is: ${question.correctAnswer}`)
+    }
+  }
+
+  const renderAnswer = (answer: string, selected: boolean, onSelect: () => void, index) => {
+    const style: TextStyle = selected ? { fontWeight: "bold", fontSize: 14 } : {}
+    return (
+      <TouchableOpacity key={index} onPress={onSelect} style={ANSWER_WRAPPER}>
+        <Text style={{ ...ANSWER, ...style }} text={decodeHTMLEntities(answer)} />
+      </TouchableOpacity>
+    )
+  }
+
   const renderQuestion = ({ item }) => {
     const question: Question = item
     return (
       <View style={QUESTION_WRAPPER}>
         <Text style={QUESTION} text={decodeHTMLEntities(question.question)} />
-        <View>
-          {question.allAnswers.map((a, index) => {
-            return (
-              <View key={index} style={ANSWER_WRAPPER}>
-                <Text style={ANSWER} text={decodeHTMLEntities(a)} />
-              </View>
-            )
-          })}
-        </View>
+        <RadioButtons
+          options={question.allAnswers}
+          onSelection={(guess) => onPressAnswer(question, guess)}
+          selectedOption={question.guess}
+          renderOption={renderAnswer}
+        />
+        <Button style={CHECK_ANSWER} onPress={() => checkAnswer(question)} text={"Check Answer!"} />
       </View>
     )
   }
